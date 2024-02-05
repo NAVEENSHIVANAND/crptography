@@ -1,0 +1,35 @@
+import random
+from Crypto.PublicKey import ECC
+
+def get_curve_order(curve_name):
+    curve = ECC._curves[curve_name]
+    return curve.order
+
+def simulate_fault_injection_attack():
+    curve_name = 'P-256'
+    curve_order = get_curve_order(curve_name)
+
+    key = ECC.generate(curve=curve_name)
+    public_point = key.pointQ
+
+    scalar = random.randrange(1, curve_order - 1)
+
+    original_result = public_point * scalar  # Use the public point and scalar for scalar multiplication
+
+    bit_to_flip = random.randint(0, 255)
+    faulty_scalar = scalar ^ (1 << bit_to_flip)
+
+    try:
+        faulty_result = public_point * faulty_scalar
+
+        # Compare the results
+        if original_result != faulty_result:
+            print(f"Fault injection successful! Faulty bit position: {bit_to_flip}")
+        else:
+            print("Fault injection unsuccessful.")
+
+    except ValueError as e:
+        print(f"Error: {e}")
+
+# Simulate a fault injection attack
+simulate_fault_injection_attack()
